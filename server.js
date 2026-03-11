@@ -27,7 +27,7 @@ app.use("/api/auth", userRouter);
 
 app.get("/", async (req, res) => {
   const users = await User.find({});
-  res.render("dashboard.ejs", { users });
+  res.render("dashboard.ejs", { users, filter: req.query.filter || "all" });
 });
 
 app.get("/gemini", async (req, res) => {

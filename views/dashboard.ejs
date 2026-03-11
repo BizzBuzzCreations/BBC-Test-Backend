@@ -136,9 +136,10 @@
       /* ─── stats row ─── */
       .stats-grid {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         gap: 16px;
         margin-bottom: 40px;
+        
         animation: fadeUp 0.5s ease both;
       }
       @keyframes fadeUp {
@@ -402,6 +403,7 @@
         color: var(--muted);
         cursor: pointer;
         transition: all 0.15s;
+        text-decoration: underline;
       }
       .pill.active,
       .pill:hover {
@@ -410,8 +412,14 @@
         background: rgba(245, 166, 35, 0.07);
       }
 
+      .table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
       table {
         width: 100%;
+        min-width: 700px;
         border-collapse: collapse;
       }
       thead th {
@@ -489,6 +497,12 @@
       .marks-low {
         background: rgba(255, 77, 109, 0.12);
         color: var(--red);
+      }
+
+      .marks-normal {
+        background: rgba(61, 142, 255, 0.12);
+        color: var(--blue);
+        margin-bottom: 2px ;
       }
 
       .td-date {
@@ -571,7 +585,11 @@
       <div class="header-meta">
         <div class="live-dot"></div>
         <span>CONNECTED</span>
-        <span style="color: var(--text)">Tue Mar 10 2026</span>
+        <span style="color: var(--text)"><%= new Date().toLocaleDateString("en-IN", {
+                                  day: "2-digit",
+                                  month: "short",
+                                  year: "numeric"
+                                }) %></span>
       </div>
     </header>
 
@@ -702,49 +720,46 @@ const usersThisWeek = users.filter(user => {
       <p class="section-label">// user records</p>
       <div class="table-wrap">
         <div class="table-toolbar">
-          <div class="search-box">
-            <svg
-              width="13"
-              height="13"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              viewBox="0 0 24 24"
-            >
-              <circle cx="11" cy="11" r="8" />
-              <path d="m21 21-4.35-4.35" />
-            </svg>
-            <input type="text" placeholder="Search users, emails…" />
-          </div>
           <div class="filter-pills">
-            <div class="pill active">All</div>
-            <div class="pill">Active</div>
-            <div class="pill">Failing</div>
-            <div class="pill">New</div>
+            <a href="?filter=all"><div class="pill <%= filter === 'all' ? 'active':''%>">All</div></a>
+            <a href="?filter=passing"><div class="pill <%= filter === 'passing' ? 'active':''%>">Passing</div></a>
+            <a href="?filter=failing"><div class="pill <%= filter === 'failing' ? 'active':''%>">Failing</div></a>
           </div>
         </div>
-
+<div class="table-wrapper">
         <table>
           <thead>
             <tr>
               <th>User</th>
               <th>Email</th>
-              <th>Password</th>
+              <th>All Tests</th>
               <th>Total Marks</th>
               <th>Created At</th>
             </tr>
           </thead>
           <tbody>
-            <% users.forEach((user) => { %>
+            <%
+               let filteredUsers = users;
+               
+               if (filter === "passing") {
+                 filteredUsers = users.filter(u => u.totalMarks >= 30);
+               } else if (filter === "failing") {
+                 filteredUsers = users.filter(u => u.totalMarks < 30);
+               }
+               %>
+            <% filteredUsers.forEach((user) => { %>
             <tr>
               <td>
                 <div class="td-user">
-                  <div class="avatar">A</div>
-                  <span><%= user.name %></span>
+                  <div class="avatar"><%= user.username.charAt(0).toUpperCase() %></div>
+                  <span><%= user.username %></span>
                 </div>
               </td>
               <td class="td-email"><%= user.email %></td>
-              <td class="td-pass">••••••••</td>
+              <td class="td-pass"><% user.allMarks.forEach((e)=>{ %>
+                <span class="marks-pill marks-normal"><%=e.testId %>: <%= e.marks %></span>
+               <% }) %>
+              </td>
               <td><span class="marks-pill <%= user.totalMarks >= 55 ? 'marks-high' : user.totalMarks >= 30 ? 'marks-medium' : 'marks-low' %>"><%= user.totalMarks %></span></td>
               <td class="td-date"><%=   new Date(user.createdAt).toLocaleDateString("en-IN", {
                                   day: "2-digit",
@@ -756,23 +771,14 @@ const usersThisWeek = users.filter(user => {
             <% }); %>
           </tbody>
         </table>
-
+</div>
         <div class="table-footer">
-          <span>Showing <%= users.length%> records</span>
+          <span>Showing <%= filteredUsers.length%> records</span>
         </div>
       </div>
     </main>
     <script>
       const users = <%- JSON.stringify(users) %>;
-
-          //filter pills interaction
-          const pills = document.querySelectorAll(".pill");
-          pills.forEach((pill) => {
-            pill.addEventListener("click", () => {
-              pills.forEach((p) => p.classList.remove("active"));
-              pill.classList.add("active");
-            });
-          });
 
           //td-user avatars
           const bgColors = [
@@ -787,7 +793,6 @@ const usersThisWeek = users.filter(user => {
             "var(--blue)",
             "var(--red)",
           ];
-          console.log(users)
           const avatars = document.querySelectorAll(".avatar");
           avatars.forEach((avatar)=>{
             const randomNum = Math.floor(Math.random() * 4);
