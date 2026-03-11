@@ -1,4 +1,5 @@
 const User = require("../models/user");
+const { getOpenAIApiRes } = require("../utils/openAi");
 const { createSecretToken } = require("../utils/secretToken");
 const bcrypt = require("bcrypt");
 
@@ -77,13 +78,41 @@ module.exports.Logout = (req, res) => {
   res.status(201).json({ message: "Logged out successfully", success: true });
 };
 
+//marks from frontend
 module.exports.addMarks = async (req, res) => {
   try {
-    const { testId, marks } = req.body;
-    if(!testId || !marks) {
+    const { testId, marks, user } = req.body;
+    if (!testId || !marks) {
       return res.json({ message: "All fields are required" });
     }
-    res.json({ message: "Marks added successfully", success: true });
+    user.allMarks.push({ testId, marks });
+    user.totalMarks += marks;
+    await user.save();
+    res.json({ message: "Marks added successfully", success: true, user });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message || "Server Error" });
+  }
+};
+
+//marks from backend (Open AI)
+module.exports.aiMarks = async (req, res) => {
+  try {
+    const { testId, question, answer, user } = req.body;
+    if (!question || !answer || !testId) {
+      return res.json({ message: "All fields are required" });
+    }
+    const response = await getOpenAIApiRes(question, answer);
+    const marks = response?.score || 0;
+    user.allMarks.push({ testId, marks });
+    user.totalMarks += marks;
+    await user.save();
+    res.json({
+      message: "Marks added successfully",
+      success: true,
+      feedback: response?.feedback,
+      user,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: error.message || "Server Error" });

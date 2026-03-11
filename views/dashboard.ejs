@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UserDB — Admin Dashboard</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --bg: #0c0d0f;
+        --surface: #13151a;
+        --border: #1f2330;
+        --amber: #f5a623;
+        --amber-dim: #7a5210;
+        --green: #2aff8f;
+        --red: #ff4d6d;
+        --blue: #3d8eff;
+        --text: #e2e4ec;
+        --muted: #5a607a;
+        --mono: "JetBrains Mono", monospace;
+        --display: "Syne", sans-serif;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--mono);
+        font-size: 13px;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      /* ─── animated grid background ─── */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(245, 166, 35, 0.035) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(245, 166, 35, 0.035) 1px, transparent 1px);
+        background-size: 40px 40px;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      /* ─── top bar ─── */
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 32px;
+        height: 56px;
+        background: rgba(12, 13, 15, 0.85);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border);
+      }
+      .logo {
+        font-family: var(--display);
+        font-size: 18px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        color: #fff;
+      }
+      .logo span {
+        color: var(--amber);
+      }
+      .header-meta {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        color: var(--muted);
+        font-size: 11px;
+      }
+      .live-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--green);
+        box-shadow: 0 0 6px var(--green);
+        animation: pulse 2s infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.4;
+        }
+      }
+      .tag {
+        padding: 2px 8px;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        color: var(--muted);
+        font-size: 10px;
+        letter-spacing: 0.04em;
+      }
+
+      /* ─── layout ─── */
+      main {
+        position: relative;
+        z-index: 1;
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 36px 32px 60px;
+      }
+
+      /* ─── section label ─── */
+      .section-label {
+        font-size: 10px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--amber);
+        margin-bottom: 16px;
+      }
+
+      /* ─── stats row ─── */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 40px;
+        animation: fadeUp 0.5s ease both;
+      }
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(14px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .stat-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 22px 24px;
+        position: relative;
+        overflow: hidden;
+        transition:
+          border-color 0.2s,
+          transform 0.2s;
+      }
+      .stat-card:hover {
+        border-color: var(--amber-dim);
+        transform: translateY(-2px);
+      }
+      .stat-card::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+      }
+      .stat-card.amber::after {
+        background: linear-gradient(90deg, var(--amber), transparent);
+      }
+      .stat-card.green::after {
+        background: linear-gradient(90deg, var(--green), transparent);
+      }
+      .stat-card.blue::after {
+        background: linear-gradient(90deg, var(--blue), transparent);
+      }
+      .stat-card.red::after {
+        background: linear-gradient(90deg, var(--red), transparent);
+      }
+
+      .stat-label {
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 10px;
+      }
+      .stat-value {
+        font-family: var(--display);
+        font-size: 36px;
+        font-weight: 800;
+        line-height: 1;
+        color: #fff;
+      }
+      .stat-value.amber {
+        color: var(--amber);
+      }
+      .stat-value.green {
+        color: var(--green);
+      }
+      .stat-value.blue {
+        color: var(--blue);
+      }
+      .stat-value.red {
+        color: var(--red);
+      }
+      .stat-sub {
+        margin-top: 8px;
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .stat-sub b {
+        color: var(--text);
+      }
+
+      /* ─── row: bar chart ─── */
+      .mid-row {
+        margin-bottom: 40px;
+        animation: fadeUp 0.55s 0.08s ease both;
+      }
+
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 24px;
+      }
+      .card-title {
+        font-family: var(--display);
+        font-size: 14px;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .card-title .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--amber);
+      }
+
+      /* schema fields list */
+      .schema-field {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .schema-field:last-child {
+        border-bottom: none;
+      }
+      .field-name {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--amber);
+        min-width: 100px;
+      }
+      .field-meta {
+        flex: 1;
+      }
+      .field-type {
+        font-size: 11px;
+        color: var(--blue);
+      }
+      .field-constraint {
+        margin-top: 2px;
+        font-size: 10px;
+        color: var(--muted);
+      }
+      .badge {
+        display: inline-block;
+        padding: 1px 6px;
+        border-radius: 3px;
+        font-size: 9px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        margin-left: 6px;
+      }
+      .badge.req {
+        background: rgba(245, 166, 35, 0.15);
+        color: var(--amber);
+      }
+      .badge.uniq {
+        background: rgba(61, 142, 255, 0.15);
+        color: var(--blue);
+      }
+      .badge.def {
+        background: rgba(42, 255, 143, 0.12);
+        color: var(--green);
+      }
+
+      /* bar chart */
+      .chart-area {
+        height: 200px;
+        display: flex;
+        align-items: flex-end;
+        gap: 10px;
+        padding-bottom: 4px;
+      }
+      .bar-wrap {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        height: 100%;
+        justify-content: flex-end;
+      }
+      .bar {
+        width: 100%;
+        border-radius: 4px 4px 0 0;
+        position: relative;
+        transition: filter 0.2s;
+      }
+      .bar:hover {
+        filter: brightness(1.3);
+      }
+      .bar-label {
+        font-size: 10px;
+        color: var(--muted);
+      }
+      .bar-val {
+        font-size: 11px;
+        color: var(--text);
+        font-weight: 600;
+      }
+      .chart-legend {
+        display: flex;
+        gap: 16px;
+        margin-top: 16px;
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .chart-legend span {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .swatch {
+        width: 8px;
+        height: 8px;
+        border-radius: 2px;
+      }
+
+      /* ─── table ─── */
+      .table-wrap {
+        animation: fadeUp 0.6s 0.16s ease both;
+      }
+      .table-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 14px;
+      }
+      .search-box {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 7px 14px;
+        color: var(--muted);
+        font-size: 12px;
+        font-family: var(--mono);
+      }
+      .search-box input {
+        background: none;
+        border: none;
+        outline: none;
+        color: var(--text);
+        font-family: var(--mono);
+        font-size: 12px;
+        width: 200px;
+      }
+      .search-box input::placeholder {
+        color: var(--muted);
+      }
+      .filter-pills {
+        display: flex;
+        gap: 8px;
+      }
+      .pill {
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        border: 1px solid var(--border);
+        color: var(--muted);
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .pill.active,
+      .pill:hover {
+        border-color: var(--amber);
+        color: var(--amber);
+        background: rgba(245, 166, 35, 0.07);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      thead th {
+        text-align: left;
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--muted);
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--border);
+        background: var(--surface);
+      }
+      thead th:first-child {
+        border-radius: 8px 0 0 0;
+      }
+      thead th:last-child {
+        border-radius: 0 8px 0 0;
+      }
+
+      tbody tr {
+        border-bottom: 1px solid var(--border);
+        transition: background 0.15s;
+      }
+      tbody tr:hover {
+        background: rgba(255, 255, 255, 0.025);
+      }
+      tbody tr:last-child {
+        border-bottom: none;
+      }
+
+      td {
+        padding: 13px 14px;
+        vertical-align: middle;
+      }
+      .td-user {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 700;
+        flex-shrink: 0;
+      }
+      .td-email {
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .td-pass {
+        font-size: 11px;
+        color: var(--muted);
+        letter-spacing: 0.15em;
+      }
+      .marks-pill {
+        display: inline-block;
+        padding: 3px 9px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 600;
+      }
+      .marks-high {
+        background: rgba(42, 255, 143, 0.12);
+        color: var(--green);
+      }
+      .marks-mid {
+        background: rgba(245, 166, 35, 0.12);
+        color: var(--amber);
+      }
+      .marks-low {
+        background: rgba(255, 77, 109, 0.12);
+        color: var(--red);
+      }
+
+      .td-date {
+        color: var(--muted);
+        font-size: 11px;
+      }
+      .status-dot {
+        display: inline-block;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        margin-right: 6px;
+      }
+      .active-dot {
+        background: var(--green);
+        box-shadow: 0 0 5px var(--green);
+      }
+      .inactive-dot {
+        background: var(--muted);
+      }
+
+      .table-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 0 0;
+        color: var(--muted);
+        font-size: 11px;
+      }
+      .pagination {
+        display: flex;
+        gap: 6px;
+      }
+      .page-btn {
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--border);
+        border-radius: 5px;
+        font-size: 11px;
+        color: var(--muted);
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .page-btn.active,
+      .page-btn:hover {
+        border-color: var(--amber);
+        color: var(--amber);
+        background: rgba(245, 166, 35, 0.07);
+      }
+
+      /* ─── scrollbar ─── */
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: var(--bg);
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 3px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ═══ HEADER ═══ -->
+    <header>
+      <div class="logo">
+        User<span>DB</span>
+        <span style="color: var(--muted); font-weight: 300; font-size: 14px"
+          >/ admin</span
+        >
+      </div>
+      <div class="header-meta">
+        <div class="live-dot"></div>
+        <span>CONNECTED</span>
+        <span style="color: var(--text)">Tue Mar 10 2026</span>
+      </div>
+    </header>
+
+    <main>
+      <!-- ═══ STATS ═══ -->
+      <p class="section-label">// overview</p>
+      <div class="stats-grid">
+        <div class="stat-card amber">
+          <div class="stat-label">Total Users</div>
+          <div class="stat-value amber"><%= users.length%></div>
+          <div class="stat-sub"><b><%
+const now = new Date();
+const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+
+const usersThisWeek = users.filter(user => {
+  return new Date(user.createdAt) >= startOfWeek;
+});
+%>
+
++<%= usersThisWeek.length %></b> this week</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">Avg. Total Marks</div>
+          <div class="stat-value green"><%= users.length > 0 ? (users.reduce((sum, user) => sum + user.totalMarks, 0) / users.length).toFixed(1) : 0 %></div>
+          <div class="stat-sub">across <b><%= users.length%></b> users</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-label">Qualified Users</div>
+          <div class="stat-value blue"><%= users.filter(user => user.totalMarks > 30).length %></div>
+          <div class="stat-sub">marks &gt; <b>30</b></div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-label">Failing Users</div>
+          <div class="stat-value red"><%= users.filter(user => user.totalMarks <= 30).length %></div>
+          <div class="stat-sub">marks &lt; <b>30</b></div>
+        </div>
+      </div>
+
+      <!-- ═══ CHART ═══ -->
+      <p class="section-label">// Marks distribution</p>
+      <div class="mid-row">
+        <!-- Bar chart -->
+        <div class="card">
+          <div class="card-title">
+            <span class="dot" style="background: var(--blue)"></span> Marks
+            distribution
+          </div>
+          <div class="chart-area">
+            <!-- bars sized by hand to simulate real distribution -->
+            <div class="bar-wrap">
+              <div class="bar-val"><%= users.filter(user => user.totalMarks >= 0 && user.totalMarks < 10).length %></40></div>
+              <div
+                class="bar"
+                style="height: <%= users.filter(user => user.totalMarks >= 0 && user.totalMarks < 10).length %>%; background: rgba(255, 77, 109, 0.7)"
+              ></div>
+              <div class="bar-label">0–9</div>
+            </div>
+            <div class="bar-wrap">
+              <div class="bar-val"><%= users.filter(user => user.totalMarks >= 10 && user.totalMarks < 20).length %></40></div>
+              <div
+                class="bar"
+                style="height:  <%= users.filter(user => user.totalMarks >= 10 && user.totalMarks < 20).length %>%; background: rgba(255, 77, 109, 0.55)"
+              ></div>
+              <div class="bar-label">10–19</div>
+            </div>
+            <div class="bar-wrap">
+              <div class="bar-val"><%= users.filter(user => user.totalMarks >= 20 && user.totalMarks < 30).length %></40></div>
+              <div
+                class="bar"
+                style="height: <%= users.filter(user => user.totalMarks >= 20 && user.totalMarks < 30).length %>%; background: rgba(245, 166, 35, 0.9)"
+              ></div>
+              <div class="bar-label">20–29</div>
+            </div>
+            <div class="bar-wrap">
+              <div class="bar-val"><%= users.filter(user => user.totalMarks >= 30 && user.totalMarks < 40).length %></40></div>
+              <div
+                class="bar"
+                style="height: <%= users.filter(user => user.totalMarks >= 30 && user.totalMarks < 40).length %>%; background: rgba(42, 255, 143, 0.65)"
+              ></div>
+              <div class="bar-label">30–39</div>
+            </div>
+            <div class="bar-wrap">
+              <div class="bar-val"> <%= users.filter(user => user.totalMarks >= 40 && user.totalMarks < 55).length %></55></div>
+              <div
+                class="bar"
+                style="
+                  height: <%= users.filter(user => user.totalMarks >= 40 && user.totalMarks < 55).length %>%;
+                  background: linear-gradient(
+                    to top,
+                    rgba(42, 255, 143, 0.7),
+                    rgba(61, 142, 255, 0.7)
+                  );
+                "
+              ></div>
+              <div class="bar-label">40–54</div>
+            </div>
+            <div class="bar-wrap">
+              <div class="bar-val"><%= users.filter(user => user.totalMarks >= 55).length %></div>
+              <div
+                class="bar"
+                style="height: <%= users.filter(user => user.totalMarks >= 55).length %>%; background: rgba(61, 142, 255, 0.85)"
+              ></div>
+              <div class="bar-label">55-70</div>
+            </div>
+          </div>
+          <div class="chart-legend">
+            <span
+              ><span class="swatch" style="background: var(--red)"></span>
+              Failing (&lt;20)</span
+            >
+            <span
+              ><span class="swatch" style="background: var(--amber)"></span>
+              Average (20–29)</span
+            >
+            <span
+              ><span class="swatch" style="background: var(--green)"></span>
+              Good (30–54)</span
+            >
+            <span
+              ><span class="swatch" style="background: var(--blue)"></span>
+              Excellent (&gt;54)</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ TABLE ═══ -->
+      <p class="section-label">// user records</p>
+      <div class="table-wrap">
+        <div class="table-toolbar">
+          <div class="search-box">
+            <svg
+              width="13"
+              height="13"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" />
+            </svg>
+            <input type="text" placeholder="Search users, emails…" />
+          </div>
+          <div class="filter-pills">
+            <div class="pill active">All</div>
+            <div class="pill">Active</div>
+            <div class="pill">Failing</div>
+            <div class="pill">New</div>
+          </div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Email</th>
+              <th>Password</th>
+              <th>Total Marks</th>
+              <th>Created At</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% users.forEach((user) => { %>
+            <tr>
+              <td>
+                <div class="td-user">
+                  <div class="avatar">A</div>
+                  <span><%= user.name %></span>
+                </div>
+              </td>
+              <td class="td-email"><%= user.email %></td>
+              <td class="td-pass">••••••••</td>
+              <td><span class="marks-pill <%= user.totalMarks >= 55 ? 'marks-high' : user.totalMarks >= 30 ? 'marks-medium' : 'marks-low' %>"><%= user.totalMarks %></span></td>
+              <td class="td-date"><%=   new Date(user.createdAt).toLocaleDateString("en-IN", {
+                                  day: "2-digit",
+                                  month: "short",
+                                  year: "numeric"
+                                }) %>
+            </td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+
+        <div class="table-footer">
+          <span>Showing <%= users.length%> records</span>
+        </div>
+      </div>
+    </main>
+    <script>
+      const users = <%- JSON.stringify(users) %>;
+
+          //filter pills interaction
+          const pills = document.querySelectorAll(".pill");
+          pills.forEach((pill) => {
+            pill.addEventListener("click", () => {
+              pills.forEach((p) => p.classList.remove("active"));
+              pill.classList.add("active");
+            });
+          });
+
+          //td-user avatars
+          const bgColors = [
+            "rgba(245, 166, 35, 0.18)",
+            "rgba(42, 255, 143, 0.12)",
+            "rgba(61, 142, 255, 0.18)",
+            "rgba(255, 77, 109, 0.18)",
+          ];
+          const textColors = [
+            "var(--amber)",
+            "var(--green)",
+            "var(--blue)",
+            "var(--red)",
+          ];
+          console.log(users)
+          const avatars = document.querySelectorAll(".avatar");
+          avatars.forEach((avatar)=>{
+            const randomNum = Math.floor(Math.random() * 4);
+            avatar.style.background = bgColors[randomNum]
+            avatar.style.color = textColors[randomNum]
+          })
+    </script>
+  </body>
+</html>

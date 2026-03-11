@@ -6,6 +6,9 @@ const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const path = require("path");
 const userRouter = require("./routes/User");
+const { geminiAPI } = require("./utils/geminiAi");
+const { getOpenAIApiRes } = require("./utils/openAi");
+const User = require("./models/user");
 
 main().catch((err) => console.log(err));
 
@@ -22,8 +25,17 @@ app.set("views", path.join(__dirname, "views"));
 
 app.use("/api/auth", userRouter);
 
-app.get("/", (req, res) => {
-  res.render("index.ejs");
+app.get("/", async (req, res) => {
+  const users = await User.find({});
+  res.render("dashboard.ejs", { users });
+});
+
+app.get("/gemini", async (req, res) => {
+  const response = await getOpenAIApiRes(
+    "What is AI?",
+    "AI stands for Artificial Intelligence. It refers to the simulation of human intelligence in machines that are programmed to think and learn like humans. AI can perform tasks such as problem-solving, decision-making, and language understanding.",
+  );
+  res.send(response);
 });
 
 app.listen(8080, () => {
