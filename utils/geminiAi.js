@@ -4,7 +4,7 @@ const { GoogleGenAI } = require("@google/genai");
 module.exports.geminiAPI = async (question, message) => {
   try {
     const ai = new GoogleGenAI({
-      apiKey: process.env.gemini_api_key,
+      apiKey: process.env.GEMINI_API_KEY,
     });
 
     const response = await ai.models.generateContent({
