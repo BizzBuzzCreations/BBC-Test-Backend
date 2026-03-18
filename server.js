@@ -13,7 +13,7 @@ const User = require("./models/user");
 main().catch((err) => console.log(err));
 
 async function main() {
-  await mongoose.connect("mongodb://127.0.0.1:27017/BBC-Test");
+  await mongoose.connect(process.env.MONGODB_URI);
   console.log("Connected to DB");
 }
 
