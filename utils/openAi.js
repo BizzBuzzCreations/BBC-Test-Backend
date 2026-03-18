@@ -1,6 +1,6 @@
 require("dotenv").config();
 
-module.exports.getOpenAIApiRes = async (question, answer) => {
+module.exports.getOpenAIApiRes = async (question, answer, topic) => {
   const options = {
     method: "POST",
     headers: {
@@ -14,6 +14,8 @@ module.exports.getOpenAIApiRes = async (question, answer) => {
           role: "user",
           content: `
 You are an interviewer evaluating a candidate's response.
+
+${topic ? topic : ""}
 
 Question: "${question}"
 
@@ -43,7 +45,7 @@ Return ONLY valid JSON in this format:
       options,
     );
     const response = await res.json();
-    return response.choices[0].message.content;
+    return JSON.parse(response.choices[0].message.content);
   } catch (err) {
     console.log(err);
   }

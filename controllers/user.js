@@ -81,8 +81,9 @@ module.exports.Logout = (req, res) => {
 //marks from frontend
 module.exports.addMarks = async (req, res) => {
   try {
-    const { testId, marks, user } = req.body;
-    if (!testId || !marks) {
+    const { testId, marks } = req.body;
+    const user = req.user;
+    if (!testId || marks === undefined || marks === null) {
       return res.json({ message: "All fields are required" });
     }
     user.allMarks.push({ testId, marks });
@@ -98,12 +99,16 @@ module.exports.addMarks = async (req, res) => {
 //marks from backend (Open AI)
 module.exports.aiMarks = async (req, res) => {
   try {
-    const { testId, question, answer, user } = req.body;
+    const { testId, question, answer, topic } = req.body;
+    const user = req.user;
     if (!question || !answer || !testId) {
       return res.json({ message: "All fields are required" });
     }
-    const response = await getOpenAIApiRes(question, answer);
-    const marks = response?.score || 0;
+
+    if (testId === "Part-G") user.isDone = true;
+
+    const response = await getOpenAIApiRes(question, answer, topic);
+    const marks = response?.score ?? 0;
     user.allMarks.push({ testId, marks });
     user.totalMarks += marks;
     await user.save();
