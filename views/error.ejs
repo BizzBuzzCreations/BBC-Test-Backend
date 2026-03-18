@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Error</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background-color: #f3f4f6;
+        padding: 0 0.5rem;
+        text-align: center;
+      }
+
+      .container {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .status {
+        font-size: 6rem;
+        font-weight: 800;
+        color: #ef4444;
+      }
+
+      .message {
+        font-size: 2.25rem;
+        font-weight: 500;
+        color: #1f2937;
+      }
+
+      .info {
+        font-size: 1.25rem;
+        color: #1f2937;
+        margin-top: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="status"><%= status %></h1>
+      <p class="message"><%= message %></p>
+      <p class="info">
+        We apologize for the inconvenience. Please try again later.
+      </p>
+    </div>
+  </body>
+</html>

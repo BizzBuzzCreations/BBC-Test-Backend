@@ -9,6 +9,7 @@ const userRouter = require("./routes/user");
 const { geminiAPI } = require("./utils/geminiAi");
 const { getOpenAIApiRes } = require("./utils/openAi");
 const User = require("./models/user");
+const { error } = require("console");
 
 main().catch((err) => console.log(err));
 
@@ -42,6 +43,12 @@ app.get("/gemini", async (req, res) => {
     "AI stands for Artificial Intelligence. It refers to the simulation of human intelligence in machines that are programmed to think and learn like humans. AI can perform tasks such as problem-solving, decision-making, and language understanding.",
   );
   res.send(response);
+});
+
+app.use((err, req, res, next) => {
+  console.log(err);
+  let { status = 500, message = "SOME ERROR" } = err;
+  res.status(status).render("error", { message, status });
 });
 
 app.listen(8080, () => {
