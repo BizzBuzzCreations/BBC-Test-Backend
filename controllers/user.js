@@ -25,7 +25,7 @@ module.exports.Signup = async (req, res, next) => {
     res.status(201).json({
       message: "User signed in successfully",
       success: true,
-      user: user,
+      user: user.username,
     });
     next();
   } catch (error) {
@@ -89,7 +89,7 @@ module.exports.addMarks = async (req, res) => {
     user.allMarks.push({ testId, marks });
     user.totalMarks += marks;
     await user.save();
-    res.json({ message: "Marks added successfully", success: true, user });
+    res.json({ message: "Marks added successfully", success: true });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: error.message || "Server Error" });
@@ -116,7 +116,6 @@ module.exports.aiMarks = async (req, res) => {
       message: "Marks added successfully",
       success: true,
       feedback: response?.feedback,
-      user,
     });
   } catch (error) {
     console.error(error);
