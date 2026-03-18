@@ -19,7 +19,7 @@ async function main() {
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173", "https://bbc-test.bbcfinsrv.com"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   }),
