@@ -109,6 +109,7 @@ module.exports.aiMarks = async (req, res) => {
 
     const response = await getOpenAIApiRes(question, answer, topic);
     const marks = response?.score ?? 0;
+    const feedback = response.feedback;
     user.allMarks.push({ testId, marks });
     user.totalMarks += marks;
     await user.save();

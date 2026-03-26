@@ -19,6 +19,7 @@ const userSchema = new mongoose.Schema({
     {
       testId: String,
       marks: Number,
+      feedback: String,
     },
   ],
   totalMarks: { type: Number, default: 0 },
