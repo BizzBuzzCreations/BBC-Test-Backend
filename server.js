@@ -10,7 +10,6 @@ const { geminiAPI } = require("./utils/geminiAi");
 const { getOpenAIApiRes } = require("./utils/openAi");
 const User = require("./models/user");
 const { error } = require("console");
-const dns = require("dns");
 
 main().catch((err) => console.log(err));
 
@@ -32,12 +31,6 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
 app.use("/api/auth", userRouter);
-
-// DNS config (only for development)
-if (process.env.NODE_ENV === "development") {
-  dns.setServers(["1.1.1.1", "8.8.8.8"]); // Cloudflare + Google
-  dns.setDefaultResultOrder("ipv4first");
-}
 
 app.get("/", async (req, res) => {
   const users = await User.find({});
