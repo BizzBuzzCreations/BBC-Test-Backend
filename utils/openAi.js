@@ -13,7 +13,7 @@ module.exports.getOpenAIApiRes = async (question, answer, topic) => {
         {
           role: "user",
           content: `
-You are an interviewer evaluating a candidate's response.
+You are an interviewer evaluating a candidate’s response. Be slightly lenient.
 
 ${topic ? topic : ""}
 
