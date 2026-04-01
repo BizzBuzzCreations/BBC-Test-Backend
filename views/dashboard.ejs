@@ -618,13 +618,13 @@ const usersThisWeek = users.filter(user => {
         </div>
         <div class="stat-card blue">
           <div class="stat-label">Qualified Users</div>
-          <div class="stat-value blue"><%= users.filter(user => user.totalMarks > 30).length %></div>
-          <div class="stat-sub">marks &gt; <b>30</b></div>
+          <div class="stat-value blue"><%= users.filter(user => user.totalMarks > 25).length %></div>
+          <div class="stat-sub">marks &gt; <b>25</b></div>
         </div>
         <div class="stat-card red">
           <div class="stat-label">Failing Users</div>
-          <div class="stat-value red"><%= users.filter(user => user.totalMarks <= 30).length %></div>
-          <div class="stat-sub">marks &lt; <b>30</b></div>
+          <div class="stat-value red"><%= users.filter(user => user.totalMarks <= 25).length %></div>
+          <div class="stat-sub">marks &lt; <b>25</b></div>
         </div>
       </div>
 
@@ -640,43 +640,36 @@ const usersThisWeek = users.filter(user => {
           <div class="chart-area">
             <!-- bars sized by hand to simulate real distribution -->
             <div class="bar-wrap">
-              <div class="bar-val"><%= users.filter(user => user.totalMarks >= 0 && user.totalMarks < 10).length %></40></div>
+              <div class="bar-val"><%= users.filter(user => user.totalMarks >= 0 && user.totalMarks < 11).length %></40></div>
               <div
                 class="bar"
-                style="height: <%= users.filter(user => user.totalMarks >= 0 && user.totalMarks < 10).length %>%; background: rgba(255, 77, 109, 0.7)"
+                style="height: <%= users.filter(user => user.totalMarks >= 0 && user.totalMarks < 11).length %>%; background: rgba(255, 77, 109, 0.7)"
               ></div>
-              <div class="bar-label">0–9</div>
+              <div class="bar-label">0–10</div>
             </div>
+            
             <div class="bar-wrap">
-              <div class="bar-val"><%= users.filter(user => user.totalMarks >= 10 && user.totalMarks < 20).length %></40></div>
+              <div class="bar-val"><%= users.filter(user => user.totalMarks >= 11 && user.totalMarks < 21).length %></40></div>
               <div
                 class="bar"
-                style="height:  <%= users.filter(user => user.totalMarks >= 10 && user.totalMarks < 20).length %>%; background: rgba(255, 77, 109, 0.55)"
+                style="height: <%= users.filter(user => user.totalMarks >= 11 && user.totalMarks < 21).length %>%; background: rgba(245, 166, 35, 0.9)"
               ></div>
-              <div class="bar-label">10–19</div>
+              <div class="bar-label">11–20</div>
             </div>
             <div class="bar-wrap">
-              <div class="bar-val"><%= users.filter(user => user.totalMarks >= 20 && user.totalMarks < 30).length %></40></div>
+              <div class="bar-val"><%= users.filter(user => user.totalMarks >= 21 && user.totalMarks < 31).length %></40></div>
               <div
                 class="bar"
-                style="height: <%= users.filter(user => user.totalMarks >= 20 && user.totalMarks < 30).length %>%; background: rgba(245, 166, 35, 0.9)"
+                style="height: <%= users.filter(user => user.totalMarks >= 21 && user.totalMarks < 31).length %>%; background: rgba(42, 255, 143, 0.65)"
               ></div>
-              <div class="bar-label">20–29</div>
+              <div class="bar-label">21–30</div>
             </div>
             <div class="bar-wrap">
-              <div class="bar-val"><%= users.filter(user => user.totalMarks >= 30 && user.totalMarks < 40).length %></40></div>
-              <div
-                class="bar"
-                style="height: <%= users.filter(user => user.totalMarks >= 30 && user.totalMarks < 40).length %>%; background: rgba(42, 255, 143, 0.65)"
-              ></div>
-              <div class="bar-label">30–39</div>
-            </div>
-            <div class="bar-wrap">
-              <div class="bar-val"> <%= users.filter(user => user.totalMarks >= 40 && user.totalMarks < 55).length %></55></div>
+              <div class="bar-val"> <%= users.filter(user => user.totalMarks >= 31 && user.totalMarks < 41).length %></55></div>
               <div
                 class="bar"
                 style="
-                  height: <%= users.filter(user => user.totalMarks >= 40 && user.totalMarks < 55).length %>%;
+                  height: <%= users.filter(user => user.totalMarks >= 31 && user.totalMarks < 41).length %>%;
                   background: linear-gradient(
                     to top,
                     rgba(42, 255, 143, 0.7),
@@ -684,33 +677,33 @@ const usersThisWeek = users.filter(user => {
                   );
                 "
               ></div>
-              <div class="bar-label">40–54</div>
+              <div class="bar-label">31–40</div>
             </div>
             <div class="bar-wrap">
-              <div class="bar-val"><%= users.filter(user => user.totalMarks >= 55).length %></div>
+              <div class="bar-val"><%= users.filter(user => user.totalMarks >= 41).length %></div>
               <div
                 class="bar"
-                style="height: <%= users.filter(user => user.totalMarks >= 55).length %>%; background: rgba(61, 142, 255, 0.85)"
+                style="height: <%= users.filter(user => user.totalMarks >= 41).length %>%; background: rgba(61, 142, 255, 0.85)"
               ></div>
-              <div class="bar-label">55-70</div>
+              <div class="bar-label">41-50</div>
             </div>
           </div>
           <div class="chart-legend">
             <span
               ><span class="swatch" style="background: var(--red)"></span>
-              Failing (&lt;20)</span
+              Failing (&lt;11)</span
             >
             <span
               ><span class="swatch" style="background: var(--amber)"></span>
-              Average (20–29)</span
+              Average (11–20)</span
             >
             <span
               ><span class="swatch" style="background: var(--green)"></span>
-              Good (30–54)</span
+              Good (21–30)</span
             >
             <span
               ><span class="swatch" style="background: var(--blue)"></span>
-              Excellent (&gt;54)</span
+              Excellent (&gt;40)</span
             >
           </div>
         </div>
