@@ -20,7 +20,7 @@ async function main() {
 
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://bbc-test.bbcfinsrv.com"],
+    origin: ["http://localhost:5173", "https://bbc-test.bizzbuzzcreations.com"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   }),
@@ -51,6 +51,7 @@ app.use((err, req, res, next) => {
   res.status(status).render("error", { message, status });
 });
 
-app.listen(8080, () => {
-  console.log("Server running on port 8080");
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });

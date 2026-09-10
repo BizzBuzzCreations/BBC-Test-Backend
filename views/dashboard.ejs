@@ -744,8 +744,8 @@ const usersThisWeek = users.filter(user => {
             <tr>
               <td>
                 <div class="td-user">
-                  <div class="avatar"><%= user.username.charAt(0).toUpperCase() %></div>
-                  <span><%= user.username %></span>
+                  <div class="avatar"><%= (user.username || "?").charAt(0).toUpperCase() %></div>
+                  <span><%= user.username || "(no username)" %></span>
                 </div>
               </td>
               <td class="td-email"><%= user.email %></td>
